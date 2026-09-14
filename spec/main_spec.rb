@@ -2,37 +2,47 @@ require_relative '../lib/profresh'
 require 'json'
 require 'date'
 
-describe 'Adding new task' do
+describe 'Add and edit tasks and tags' do
 
-    describe '#add' do
+    # Retrieve json file and contents to be used in testing
+    def task_file_path
+        File.join(__dir__, '..', 'data', 'task_list.json')
+    end
 
-        # Unit Tests for Stories 1 & 3
+    def delete_task_by_id(target_id)
+        path = task_file_path
+        return unless target_id && File.exist?(path)
 
-
-        id = nil # so we can keep what the expect-add returns and be sure to delete it at end of testing
-
-
-        # Test add method is defined
-        it 'should be defined' do
-            title = "write code"
-            priority = "high"
-            date_due = "9/26/2026"
-            expect {
-                id = add(title, priority, date_due)
-            }.not_to raise_error
+        data = JSON.parse(File.read(path))
+        if data['tasks']
+            data['tasks'].reject! {|task| task['id'] == target_id}
+            File.write(path, JSON.pretty_generate(data))
         end
+    end
 
+    describe '#add_task' do
 
-        # Retrieve json file and contents to be used in testing
-        let(:file_path) {File.join(__dir__, '..', 'data', 'task_list.json')}
+        let(:file_path) { task_file_path }
         let(:parsed_json) do
             file_content = File.read(file_path)
             JSON.parse(file_content)
         end
 
+        before(:all) do
+            title = "write code"
+            priority = "high"
+            date_due = "9/26/2026"
+            @id = add_task(title, priority, date_due)
+        end
+
+        # Test add method is defined
+        it 'should be defined' do
+            expect(@id).not_to be_nil
+        end
+
 
         # Make sure json file exists and has an array
-        it 'json file exists and has tasks array' do
+        it 'json file exists and has tasks array and creates if it not existing' do
             expect(File.exist?(file_path)).to be true
             expect {parsed_json}.not_to raise_error
             expect(parsed_json).to have_key('tasks')
@@ -70,44 +80,121 @@ describe 'Adding new task' do
 
         # Cleanup - Remove task created for testing from json file
         after(:all) do
-            if id && File.exist?(file_path)
-                udpated_tasks = parsed_json.reject {|task| task['id'] == id }
-                File.write(file_path, JSON.pretty_generate(updated_tasks))
-            end
+            delete_task_by_id(@id)
+        end
+
+    end
+
+
+    describe '#add_tag and #remove_tag' do
+
+        let(:file_path) { task_file_path }
+        let(:parsed_json) do
+            file_content = File.read(file_path)
+            JSON.parse(file_content)
+        end
+
+        before(:all) do
+            title = "write code b"
+            priority = "high"
+            date_due = "9/26/2026"
+            @id = add_task(title, priority, date_due)
+        end
+
+        it 'adds tag to task' do
+            expect {add_tag(@id, "CSCE 606")}.not_to raise_error
+
+            task = parsed_json['tasks'].find {|task| task['id'] == @id}
+            expect(task).not_to be_nil
+            expect(task['tags']).to include('CSCE 606')
+        end
+
+        it 'deletes the tag so it is no longer associated with the task' do
+            remove_tag(@id, "CSCE 606")
+
+            updated_task = JSON.parse(File.read(file_path))['tasks'].find {|task| task['id'] == @id}
+            expect(updated_task['tags']).not_to include('CSCE 606')
+        end
+
+        after(:all) do
+            delete_task_by_id(@id)
+        end
+
+    end
+
+
+    describe '#edit_task' do
+
+
+        let(:file_path) {File.join(__dir__, '..', 'data', 'task_list.json')}
+        let(:parsed_json) do
+            file_content = File.read(file_path)
+            JSON.parse(file_content)
+        end
+
+        before(:all) do
+            title = "write stories"
+            priority = "medium"
+            date_due = "9/26/2026"
+            @id = add_task(title, priority, date_due)
+        end
+
+        it 'changes the priority of the "write stories" task to high' do
+            expect {edit_priority(@id, 'high')}.not_to raise_error
+            task = parsed_json['tasks'].find {|task| task['id'] == @id}
+            expect(task).not_to be_nil
+            expect(task['priority']).to eq('high')
+        end
+
+        it 'changes the due date to 9/13/2026' do
+            expect {edit_date_due(@id, '9/13/2026')}.not_to raise_error
+            task = parsed_json['tasks'].find {|task| task['id'] == @id}
+            expect(task).not_to be_nil
+            expect(task['date_due']).to eq('9/13/2026')
+        end
+
+        after(:all) do
+            delete_task_by_id(@id)
+        end
+
+    end
+
+    describe '#clear_tags' do
+
+        let(:file_path) {File.join(__dir__, '..', 'data', 'task_list.json')}
+        let(:parsed_json) do
+            file_content = File.read(file_path)
+            JSON.parse(file_content)
+        end
+
+        before(:all) do
+            title = "write code"
+            priority = "high"
+            date_due = "9/26/2026"
+            @id = add_task(title, priority, date_due)
+            add_tag(@id, "CSCE 606")
+            add_tag(@id, "700")
+        end
+
+        it 'removes all tags from the task' do
+            expect {clear_tags(@id)}.not_to raise_error
+            task = parsed_json['tasks'].find { |task| task['id'] == @id }
+            expect(task).not_to be_nil
+            expect(task['tags']).to be_an(Array)
+            expect(task['tags']).to be_empty
+        end
+
+        it 'handles tasks with no tags with no errors' do
+            expect {clear_tags(@id)}.not_to raise_error
+            task = parsed_json['tasks'].find {|task| task['id'] == @id}
+            expect(task['tags']).to eq([])
+        end
+
+        after(:all) do
+            delete_task_by_id(@id)
         end
 
     end
 
 end
-
-
-# describe 'tags' do
-
-    # create entry in json file for testing
-
-    # describe '#add_tag' do
-
-        # it 'should be defined' do
-        #     expect {add_tag(id, 'CSCE 606')}.not_to raise_error
-        # end
-
-        # it 'has tag for correct task'
-            # expect to be true
-            # expect to eq 'CSCE 606'
-
-    # end
-
-    # possible to add a delete tag test
-
-# end
-
-
-
-    # describe '#edit'
-
-        # it 'should be defined'
-            # expect not to raise error
-
-        # it 'properly saves changes'
-            # expect priority to eq 'high'
 
