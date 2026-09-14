@@ -25,3 +25,11 @@ integers. The storage code needs to save the array after successful changes.
 These connections still need to be tested with the teammate's implementation.
 The existing add tests depend on an `add` implementation that is not present
 in this checkout.
+
+## Story 6
+
+`TaskList#stale?` marks incomplete tasks last updated at least 14 calendar days
+ago. `ProFresh#run` displays `[stale]` in list output. Editing a title, priority,
+or due date validates the input before refreshing `updated`; completed tasks
+never show the mark. Dates follow the existing ISO8601 storage convention.
+Run `rspec spec/stale_spec.rb` for boundary, validation, and display tests.

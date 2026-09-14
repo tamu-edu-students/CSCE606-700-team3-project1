@@ -123,3 +123,34 @@ def clear_tags(id)
     end
 
 end
+require_relative 'task_list'
+
+class ProFresh
+    def initialize(task_list = TaskList.new)
+        @task_list = task_list
+    end
+
+    def run(arguments, output: $stdout)
+        command, *args = arguments
+        case command
+        when 'list'
+            raise ArgumentError, 'usage: list [all|incomplete|completed] [date_due|priority]' if args.length > 2
+            tasks = @task_list.list(status: args[0] == 'all' ? nil : args[0], sort_by: args[1])
+            output.puts('No tasks.') if tasks.empty?
+            tasks.each do |task|
+                mark = @task_list.stale?(task) ? ' [stale]' : ''
+                output.puts("#{task['id']}: #{task['title']} | #{task['priority']} | #{task['date_due']} | #{task['status']}#{mark}")
+            end
+        when 'edit'
+            raise ArgumentError, 'usage: edit ID title|priority|date_due VALUE' unless args.length == 3 && ['title', 'priority', 'date_due'].include?(args[1])
+            @task_list.edit(Integer(args[0], 10), **{ args[1].to_sym => args[2] })
+            output.puts('Task updated.')
+        else
+            raise ArgumentError, 'commands: list, edit'
+        end
+        0
+    rescue ArgumentError => error
+        output.puts("Error: #{error.message}")
+        1
+    end
+end
