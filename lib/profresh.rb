@@ -4,59 +4,27 @@ require 'date'
 DATA_PATH = File.join(__dir__, '..', 'data', 'task_list.json')
 
 def load_data
-
-    return {'tasks' => []} unless File.exist?(DATA_PATH)
-    content = File.read(DATA_PATH)
-    return {'tasks' => []} if content.strip.empty?
-
-    JSON.parse(content)
-
+    path = ENV.fetch('PROFRESH_DATA_FILE', DATA_PATH)
+    {'tasks' => Storage.new(path).load}
 end
 
 def save_data(data)
-
-    dir = File.dirname(DATA_PATH)
-    Dir.mkdir(dir) unless Dir.exist?(dir)
-    File.write(DATA_PATH, JSON.pretty_generate(data))
-
+    path = ENV.fetch('PROFRESH_DATA_FILE', DATA_PATH)
+    Storage.new(path).save(data['tasks'])
 end
 
 def parse_to_iso8601(date_str)
-
-    return "" if date_str.nil? || date_str.strip.empty?
-
-    Date.strptime(date_str, '%m/%d/%Y').iso8601
-
-    rescue ArgumentError
-
-    Date.parse(date_str).iso8601
-
+    if date_str.match?(/\A\d{4}-\d{2}-\d{2}\z/)
+        Date.iso8601(date_str).iso8601
+    elsif date_str.match?(/\A\d{1,2}\/\d{1,2}\/\d{4}\z/)
+        Date.strptime(date_str, '%m/%d/%Y').iso8601
+    else
+        raise ArgumentError, 'invalid date; use M/D/YYYY or YYYY-MM-DD'
+    end
 end
 
 def add_task(title, priority, date_due)
-
-    data = load_data
-    tasks = data['tasks']
-
-    new_id = (tasks.map {|task| task['id']}.max || 0) + 1
-    today_iso = Date.today.iso8601
-
-    new_task = {
-        'id' => new_id,
-        'title' => title,
-        'priority' => priority,
-        'date_due' => parse_to_iso8601(date_due),
-        'tags' => [],
-        'status' => 'pending',
-        'created' => today_iso,
-        'updated' => today_iso,
-        'finished' => ''
-    }
-
-    tasks << new_task
-    save_data(data)
-    new_id
-
+    add(title, priority, date_due)
 end
 
 def add_tag(id, tag)
@@ -91,8 +59,7 @@ def edit_priority(id, priority)
     task = data['tasks'].find {|task| task['id'] == id}
 
     if task
-        task['priority'] = priority
-        task['updated'] = Date.today.iso8601
+        TaskList.new(data['tasks']).edit(id, priority: priority)
         save_data(data)
     end
 
@@ -104,8 +71,7 @@ def edit_date_due(id, date)
     task = data['tasks'].find {|task| task['id'] == id}
 
     if task
-        task['date_due'] = date
-        task['updated'] = Date.today.iso8601
+        TaskList.new(data['tasks']).edit(id, date_due: date)
         save_data(data)
     end
 
@@ -134,29 +100,53 @@ class ProFresh
 
     def run(arguments, output: $stdout)
         @task_list = TaskList.new(@storage.load) if @storage
-        command, *args = arguments
+        command = arguments[0]
+        args = arguments.drop(1)
         case command
         when 'list'
             raise ArgumentError, 'usage: list [all|incomplete|completed] [date_due|priority]' if args.length > 2
-            tasks = @task_list.list(status: args[0] == 'all' ? nil : args[0], sort_by: args[1])
+            status = args[0]
+            if status == 'all'
+                status = nil
+            end
+            tasks = @task_list.list(status: status, sort_by: args[1])
             output.puts('No tasks.') if tasks.empty?
             tasks.each do |task|
-                mark = @task_list.stale?(task) ? ' [stale]' : ''
+                mark = ''
+                if @task_list.stale?(task)
+                    mark = ' [stale]'
+                end
                 output.puts("#{task['id']}: #{task['title']} | #{task['priority']} | #{task['date_due']} | #{task['status']}#{mark}")
             end
         when 'add'
             raise ArgumentError, 'usage: add TITLE PRIORITY DATE' unless args.length == 3
-            id = @task_list.add(*args)
+            id = @task_list.add(args[0], args[1], args[2])
             @storage.save(@task_list.list) if @storage
             output.puts("Task #{id} added.")
         when 'complete', 'delete'
             raise ArgumentError, "usage: #{command} ID" unless args.length == 1
-            @task_list.public_send(command, Integer(args[0], 10))
+            id = Integer(args[0], 10)
+            if command == 'complete'
+                @task_list.complete(id)
+            else
+                @task_list.delete(id)
+            end
             @storage.save(@task_list.list) if @storage
-            output.puts(command == 'complete' ? 'Task completed.' : 'Task deleted.')
+            if command == 'complete'
+                output.puts('Task completed.')
+            else
+                output.puts('Task deleted.')
+            end
         when 'edit'
             raise ArgumentError, 'usage: edit ID title|priority|date_due VALUE' unless args.length == 3 && ['title', 'priority', 'date_due'].include?(args[1])
-            @task_list.edit(Integer(args[0], 10), **{ args[1].to_sym => args[2] })
+            id = Integer(args[0], 10)
+            if args[1] == 'title'
+                @task_list.edit(id, title: args[2])
+            elsif args[1] == 'priority'
+                @task_list.edit(id, priority: args[2])
+            else
+                @task_list.edit(id, date_due: args[2])
+            end
             @storage.save(@task_list.list) if @storage
             output.puts('Task updated.')
         else
@@ -169,7 +159,6 @@ class ProFresh
     end
 end
 
-# Keep the original add API used by the project tests.
 def add(title, priority, date_due)
     storage = Storage.new(ENV.fetch('PROFRESH_DATA_FILE', File.expand_path('../data/task_list.json', __dir__)))
     tasks = TaskList.new(storage.load)

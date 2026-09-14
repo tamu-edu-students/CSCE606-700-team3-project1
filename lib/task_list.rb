@@ -13,15 +13,31 @@ class TaskList
             raise ArgumentError, 'invalid sort order'
         end
 
-        tasks = @tasks.dup
-        tasks = tasks.select { |task| task['status'] == status } if status
+        tasks = []
+        for task in @tasks
+            if status == nil || task['status'] == status
+                tasks << task
+            end
+        end
 
-        case sort_by
-        when 'date_due'
-            tasks = tasks.sort_by { |task| Date.iso8601(task['date_due']) }
-        when 'priority'
+        if sort_by != nil
             priorities = { 'high' => 0, 'medium' => 1, 'low' => 2 }
-            tasks = tasks.sort_by { |task| priorities.fetch(task['priority']) }
+            for i in 0...tasks.length
+                for j in 0...(tasks.length - 1 - i)
+                    if sort_by == 'date_due'
+                        left = Date.iso8601(tasks[j]['date_due'])
+                        right = Date.iso8601(tasks[j + 1]['date_due'])
+                    else
+                        left = priorities.fetch(tasks[j]['priority'])
+                        right = priorities.fetch(tasks[j + 1]['priority'])
+                    end
+                    if left > right
+                        temp = tasks[j]
+                        tasks[j] = tasks[j + 1]
+                        tasks[j + 1] = temp
+                    end
+                end
+            end
         end
 
         tasks
@@ -31,7 +47,12 @@ class TaskList
         raise ArgumentError, 'title cannot be empty' if title.strip.empty?
         raise ArgumentError, 'invalid priority' unless ['low', 'medium', 'high'].include?(priority)
         due = parse_due_date(date_due)
-        id = (@tasks.map { |task| task['id'] }.max || 0) + 1
+        id = 1
+        for task in @tasks
+            if task['id'] >= id
+                id = task['id'] + 1
+            end
+        end
         today = Date.today.iso8601
         @tasks << { 'id' => id, 'title' => title, 'priority' => priority,
                     'date_due' => due, 'tags' => [], 'status' => 'incomplete',
@@ -55,25 +76,41 @@ class TaskList
     end
 
     def stale?(task, today: Date.today)
-        task['status'] == 'incomplete' && today - Date.iso8601(task['updated']) >= 14
+        if task['status'] != 'incomplete'
+            return false
+        end
+        days = today - Date.iso8601(task['updated'])
+        if days >= 14
+            return true
+        end
+        false
     end
 
     def edit(id, title: nil, priority: nil, date_due: nil)
         task = find_task(id)
-        changes = {}
+        changed = false
         unless title.nil?
             raise ArgumentError, 'title cannot be empty' if title.strip.empty?
-            changes['title'] = title
+            changed = true
         end
         unless priority.nil?
             raise ArgumentError, 'invalid priority' unless ['low', 'medium', 'high'].include?(priority)
-            changes['priority'] = priority
+            changed = true
         end
         unless date_due.nil?
-            changes['date_due'] = parse_due_date(date_due)
+            date_due = parse_due_date(date_due)
+            changed = true
         end
-        unless changes.empty?
-            task.merge!(changes)
+        if changed
+            if title != nil
+                task['title'] = title
+            end
+            if priority != nil
+                task['priority'] = priority
+            end
+            if date_due != nil
+                task['date_due'] = date_due
+            end
             task['updated'] = Date.today.iso8601
         end
         task
@@ -94,9 +131,11 @@ class TaskList
     end
 
     def find_task(id)
-        task = @tasks.find { |entry| entry['id'] == id }
-        raise ArgumentError, 'task not found' unless task
-
-        task
+        for task in @tasks
+            if task['id'] == id
+                return task
+            end
+        end
+        raise ArgumentError, 'task not found'
     end
 end

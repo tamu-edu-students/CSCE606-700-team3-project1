@@ -57,3 +57,14 @@ Run `rspec` for all tests, including separate-process persistence tests in
 `spec/storage_spec.rb`. Tests use temporary files and do not modify user data.
 Stories 6 and 9 are implemented locally; story point estimates and team tracker
 status still need to be agreed with the team.
+
+## Integration with the merged task APIs
+
+`add_task`, `add_tag`, `remove_tag`, `clear_tags`, `edit_priority`, and
+`edit_date_due` share the CLI's storage and `PROFRESH_DATA_FILE` setting.
+Edited due dates are saved as ISO8601, matching newly added tasks.
+Existing `pending` tasks load as `incomplete`, and M/D/YYYY due dates load as
+ISO8601. Reading does not rewrite the file; the next successful change saves
+the normalized values. IDs, tags, and timestamps are preserved on loading.
+Run `rspec spec/integration_spec.rb` to check compatibility between these APIs,
+legacy task files, and the CLI. All tests use temporary task files.
