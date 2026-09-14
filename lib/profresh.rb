@@ -72,6 +72,19 @@ def add_tag(id, tag)
 
 end
 
+def remove_tag(id, tag)
+
+    data = load_data
+    task = data['tasks'].find {|task| task['id'] == id}
+
+    if task
+        task['tags'].delete(tag)
+        task['updated'] = Date.today.iso8601
+        save_data(data)
+    end
+
+end
+
 def edit_priority(id, priority)
 
     data = load_data
@@ -79,6 +92,32 @@ def edit_priority(id, priority)
 
     if task
         task['priority'] = priority
+        task['updated'] = Date.today.iso8601
+        save_data(data)
+    end
+
+end
+
+def edit_date_due(id, date)
+
+    data = load_data
+    task = data['tasks'].find {|task| task['id'] == id}
+
+    if task
+        task['date_due'] = date
+        task['updated'] = Date.today.iso8601
+        save_data(data)
+    end
+
+end
+
+def clear_tags(id)
+
+    data = load_data
+    task = data['tasks'].find {|task| task['id'] == id}
+
+    if task
+        task['tags'] = []
         task['updated'] = Date.today.iso8601
         save_data(data)
     end
