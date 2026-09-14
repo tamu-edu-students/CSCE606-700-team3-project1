@@ -1,12 +1,24 @@
 require_relative '../lib/profresh'
 require 'json'
 require 'date'
+require 'tmpdir'
 
 describe 'Add and edit tasks and tags' do
+    around do |example|
+        Dir.mktmpdir('profresh-main') do |directory|
+            previous = ENV['PROFRESH_DATA_FILE']
+            ENV['PROFRESH_DATA_FILE'] = File.join(directory, 'tasks.json')
+            begin
+                example.run
+            ensure
+                ENV['PROFRESH_DATA_FILE'] = previous
+            end
+        end
+    end
 
     # Retrieve json file and contents to be used in testing
     def task_file_path
-        File.join(__dir__, '..', 'data', 'task_list.json')
+        ENV.fetch('PROFRESH_DATA_FILE')
     end
 
     def delete_task_by_id(target_id)
@@ -28,7 +40,7 @@ describe 'Add and edit tasks and tags' do
             JSON.parse(file_content)
         end
 
-        before(:all) do
+        before(:each) do
             title = "write code"
             priority = "high"
             date_due = "9/26/2026"
@@ -79,7 +91,7 @@ describe 'Add and edit tasks and tags' do
         end
 
         # Cleanup - Remove task created for testing from json file
-        after(:all) do
+        after(:each) do
             delete_task_by_id(@id)
         end
 
@@ -94,7 +106,7 @@ describe 'Add and edit tasks and tags' do
             JSON.parse(file_content)
         end
 
-        before(:all) do
+        before(:each) do
             title = "write code b"
             priority = "high"
             date_due = "9/26/2026"
@@ -116,7 +128,7 @@ describe 'Add and edit tasks and tags' do
             expect(updated_task['tags']).not_to include('CSCE 606')
         end
 
-        after(:all) do
+        after(:each) do
             delete_task_by_id(@id)
         end
 
@@ -126,13 +138,13 @@ describe 'Add and edit tasks and tags' do
     describe '#edit_task' do
 
 
-        let(:file_path) {File.join(__dir__, '..', 'data', 'task_list.json')}
+        let(:file_path) {ENV.fetch('PROFRESH_DATA_FILE')}
         let(:parsed_json) do
             file_content = File.read(file_path)
             JSON.parse(file_content)
         end
 
-        before(:all) do
+        before(:each) do
             title = "write stories"
             priority = "medium"
             date_due = "9/26/2026"
@@ -150,10 +162,10 @@ describe 'Add and edit tasks and tags' do
             expect {edit_date_due(@id, '9/13/2026')}.not_to raise_error
             task = parsed_json['tasks'].find {|task| task['id'] == @id}
             expect(task).not_to be_nil
-            expect(task['date_due']).to eq('9/13/2026')
+            expect(task['date_due']).to eq('2026-09-13')
         end
 
-        after(:all) do
+        after(:each) do
             delete_task_by_id(@id)
         end
 
@@ -161,13 +173,13 @@ describe 'Add and edit tasks and tags' do
 
     describe '#clear_tags' do
 
-        let(:file_path) {File.join(__dir__, '..', 'data', 'task_list.json')}
+        let(:file_path) {ENV.fetch('PROFRESH_DATA_FILE')}
         let(:parsed_json) do
             file_content = File.read(file_path)
             JSON.parse(file_content)
         end
 
-        before(:all) do
+        before(:each) do
             title = "write code"
             priority = "high"
             date_due = "9/26/2026"
@@ -190,7 +202,7 @@ describe 'Add and edit tasks and tags' do
             expect(task['tags']).to eq([])
         end
 
-        after(:all) do
+        after(:each) do
             delete_task_by_id(@id)
         end
 
