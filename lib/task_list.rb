@@ -27,6 +27,18 @@ class TaskList
         tasks
     end
 
+    def add(title, priority, date_due)
+        raise ArgumentError, 'title cannot be empty' if title.strip.empty?
+        raise ArgumentError, 'invalid priority' unless ['low', 'medium', 'high'].include?(priority)
+        due = parse_due_date(date_due)
+        id = (@tasks.map { |task| task['id'] }.max || 0) + 1
+        today = Date.today.iso8601
+        @tasks << { 'id' => id, 'title' => title, 'priority' => priority,
+                    'date_due' => due, 'tags' => [], 'status' => 'incomplete',
+                    'created' => today, 'updated' => today, 'finished' => '' }
+        id
+    end
+
     def complete(id)
         task = find_task(id)
         unless task['status'] == 'completed'

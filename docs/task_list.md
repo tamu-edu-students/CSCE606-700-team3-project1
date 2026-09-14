@@ -20,12 +20,6 @@ tasks.delete(1)
 `delete` update the supplied array. Missing IDs raise `ArgumentError` with
 `task not found`. Completing a task again preserves its finish date.
 
-The CLI needs to display returned tasks and errors and convert input IDs to
-integers. The storage code needs to save the array after successful changes.
-These connections still need to be tested with the teammate's implementation.
-The existing add tests depend on an `add` implementation that is not present
-in this checkout.
-
 ## Story 6
 
 `TaskList#stale?` marks incomplete tasks last updated at least 14 calendar days
@@ -33,3 +27,33 @@ ago. `ProFresh#run` displays `[stale]` in list output. Editing a title, priority
 or due date validates the input before refreshing `updated`; completed tasks
 never show the mark. Dates follow the existing ISO8601 storage convention.
 Run `rspec spec/stale_spec.rb` for boundary, validation, and display tests.
+
+## Story 9
+
+Run `ruby lib/profresh.rb` with the commands below. The app loads the JSON file
+at startup and saves successful add, edit, complete, and delete operations.
+The default file is `data/task_list.json`; set `PROFRESH_DATA_FILE` to use another
+path. The file contains a `tasks` array, preserving task fields and tags.
+Missing files start empty. Invalid JSON or task data produces an error and is
+not overwritten. Saves replace the file only after a temporary file is fully
+written. Concurrent writers are not supported; run one command at a time.
+
+```sh
+ruby lib/profresh.rb add "write code" high 9/26/2026
+ruby lib/profresh.rb list incomplete priority
+ruby lib/profresh.rb edit 1 priority medium
+ruby lib/profresh.rb edit 1 date_due 2026-09-28
+ruby lib/profresh.rb complete 1
+ruby lib/profresh.rb delete 1
+```
+
+Titles containing spaces must be quoted. IDs are integers. Input dates accept
+M/D/YYYY or YYYY-MM-DD and are saved as YYYY-MM-DD. `list all date_due` sorts
+all tasks by due date. Failed commands print `Error:` and exit with status 1.
+New IDs are greater than every currently saved ID. Stale marks are calculated
+when listing, so they do not need to be stored.
+
+Run `rspec` for all tests, including separate-process persistence tests in
+`spec/storage_spec.rb`. Tests use temporary files and do not modify user data.
+Stories 6 and 9 are implemented locally; story point estimates and team tracker
+status still need to be agreed with the team.

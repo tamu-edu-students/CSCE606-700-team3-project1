@@ -124,13 +124,16 @@ def clear_tags(id)
 
 end
 require_relative 'task_list'
+require_relative 'storage'
 
 class ProFresh
-    def initialize(task_list = TaskList.new)
+    def initialize(task_list = nil, path: ENV.fetch('PROFRESH_DATA_FILE', File.expand_path('../data/task_list.json', __dir__)))
+        @storage = Storage.new(path) unless task_list
         @task_list = task_list
     end
 
     def run(arguments, output: $stdout)
+        @task_list = TaskList.new(@storage.load) if @storage
         command, *args = arguments
         case command
         when 'list'
@@ -141,16 +144,38 @@ class ProFresh
                 mark = @task_list.stale?(task) ? ' [stale]' : ''
                 output.puts("#{task['id']}: #{task['title']} | #{task['priority']} | #{task['date_due']} | #{task['status']}#{mark}")
             end
+        when 'add'
+            raise ArgumentError, 'usage: add TITLE PRIORITY DATE' unless args.length == 3
+            id = @task_list.add(*args)
+            @storage.save(@task_list.list) if @storage
+            output.puts("Task #{id} added.")
+        when 'complete', 'delete'
+            raise ArgumentError, "usage: #{command} ID" unless args.length == 1
+            @task_list.public_send(command, Integer(args[0], 10))
+            @storage.save(@task_list.list) if @storage
+            output.puts(command == 'complete' ? 'Task completed.' : 'Task deleted.')
         when 'edit'
             raise ArgumentError, 'usage: edit ID title|priority|date_due VALUE' unless args.length == 3 && ['title', 'priority', 'date_due'].include?(args[1])
             @task_list.edit(Integer(args[0], 10), **{ args[1].to_sym => args[2] })
+            @storage.save(@task_list.list) if @storage
             output.puts('Task updated.')
         else
-            raise ArgumentError, 'commands: list, edit'
+            raise ArgumentError, 'commands: add, list, edit, complete, delete'
         end
         0
-    rescue ArgumentError => error
+    rescue ArgumentError, Storage::Error => error
         output.puts("Error: #{error.message}")
         1
     end
 end
+
+# Keep the original add API used by the project tests.
+def add(title, priority, date_due)
+    storage = Storage.new(ENV.fetch('PROFRESH_DATA_FILE', File.expand_path('../data/task_list.json', __dir__)))
+    tasks = TaskList.new(storage.load)
+    id = tasks.add(title, priority, date_due)
+    storage.save(tasks.list)
+    id
+end
+
+exit(ProFresh.new.run(ARGV)) if $PROGRAM_NAME == __FILE__

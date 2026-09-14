@@ -45,3 +45,10 @@ Busy individuals who have too many tasks every day and want a convenient tool to
 5. **Save and Load**
   + Add 2 tasks and save. Then load the file again. Expect the same 2 tasks, with the same id, title, and status.
   + Load a file that does not exist. Expect an empty list and no crash. Load a broken JSON file. Expect a clear error message.
+
+## Running the app
+
+Run `ruby lib/profresh.rb add "write code" high 9/26/2026`, then
+`ruby lib/profresh.rb list`. Tasks are saved in `data/task_list.json`.
+See [TaskList usage](docs/task_list.md) for editing, completion, deletion,
+filters, stale marks, and storage behavior. Run `rspec` to run the tests.
