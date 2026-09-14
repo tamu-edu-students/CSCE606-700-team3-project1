@@ -2,24 +2,36 @@ require_relative '../lib/profresh'
 require 'json'
 require 'date'
 
-describe 'adding new task' do
+describe 'Adding new task' do
 
     describe '#add' do
 
+        # Unit Tests for Stories 1 & 3
+
+
+        id = nil # so we can keep what the expect-add returns and be sure to delete it at end of testing
+
+
+        # Test add method is defined
         it 'should be defined' do
             title = "write code"
             priority = "high"
             date_due = "9/26/2026"
-            tags = [""]
-            expect {add(title, priority, date_due)}.not_to raise_error
+            expect {
+                id = add(title, priority, date_due)
+            }.not_to raise_error
         end
 
+
+        # Retrieve json file and contents to be used in testing
         let(:file_path) {File.join(__dir__, '..', 'data', 'task_list.json')}
         let(:parsed_json) do
             file_content = File.read(file_path)
             JSON.parse(file_content)
         end
 
+
+        # Make sure json file exists and has an array
         it 'json file exists and has tasks array' do
             expect(File.exist?(file_path)).to be true
             expect {parsed_json}.not_to raise_error
@@ -28,6 +40,8 @@ describe 'adding new task' do
             expect(parsed_json['tasks']).not_to be_empty
         end
 
+
+        # Make sure all elements are present
         it 'stores correct data type in json file' do
             parsed_json['tasks'].each do |task|
                 expect(task).to include('id' => be_a(Integer))
@@ -42,6 +56,7 @@ describe 'adding new task' do
             end
         end
 
+        # Easier to sort in iso8601 format - check to ensure it is in correct format
         it 'date stored in proper format ISO8601' do
             parsed_json['tasks'].each do |task|
                 expect {Date.iso8601(task['date_due'])}.not_to raise_error
@@ -53,16 +68,40 @@ describe 'adding new task' do
             end
         end
 
+        # Cleanup - Remove task created for testing from json file
+        after(:all) do
+            if id && File.exist?(file_path)
+                udpated_tasks = parsed_json.reject {|task| task['id'] == id }
+                File.write(file_path, JSON.pretty_generate(updated_tasks))
+            end
+        end
+
     end
 
-    # describe '#add_tag'
+end
 
-        # it 'should be defined'
-            # expect not to raise error
+
+# describe 'tags' do
+
+    # create entry in json file for testing
+
+    # describe '#add_tag' do
+
+        # it 'should be defined' do
+        #     expect {add_tag(id, 'CSCE 606')}.not_to raise_error
+        # end
 
         # it 'has tag for correct task'
             # expect to be true
             # expect to eq 'CSCE 606'
+
+    # end
+
+    # possible to add a delete tag test
+
+# end
+
+
 
     # describe '#edit'
 
@@ -72,4 +111,3 @@ describe 'adding new task' do
         # it 'properly saves changes'
             # expect priority to eq 'high'
 
-end
