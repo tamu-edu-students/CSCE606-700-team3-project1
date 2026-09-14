@@ -81,33 +81,69 @@ describe 'Adding new task' do
 end
 
 
-# describe 'tags' do
+describe 'Adding tag to task' do
 
-    # create entry in json file for testing
+    title = "write code"
+    priority = "high"
+    date_due = "9/26/2026"
+    id = add(title, priority, date_due)
 
-    # describe '#add_tag' do
+    let(:file_path) {File.join(__dir__, '..', 'data', 'task_list.json')}
+    let(:parsed_json) do
+        file_content = File.read(file_path)
+        JSON.parse(file_content)
+    end
 
-        # it 'should be defined' do
-        #     expect {add_tag(id, 'CSCE 606')}.not_to raise_error
-        # end
+    describe '#add_tag' do
 
-        # it 'has tag for correct task'
-            # expect to be true
-            # expect to eq 'CSCE 606'
+        it 'adds tag to task' do
+            expect {add_tag(id, "CSCE 606")}.not_to raise_error
 
-    # end
+            task = file_content.find {|task| task['id'] == id}
+            expect(task).not_to be_nil
+            expect(task['tags']).to include('CSCE 606')
+        end
+    end
 
-    # possible to add a delete tag test
+    after(:all) do
+        if id && File.exist?(file_path)
+            udpated_tasks = parsed_json.reject {|task| task['id'] == id }
+            File.write(file_path, JSON.pretty_generate(updated_tasks))
+        end
+    end
 
-# end
+end
 
 
 
-    # describe '#edit'
+describe 'editing tasks' do
 
-        # it 'should be defined'
-            # expect not to raise error
+    title = "write stories"
+    priority = "medium"
+    date_due = "9/26/2026"
+    id = add(title, priority, date_due)
 
-        # it 'properly saves changes'
-            # expect priority to eq 'high'
+    let(:file_path) {File.join(__dir__, '..', 'data', 'task_list.json')}
+    let(:parsed_json) do
+        file_content = File.read(file_path)
+        JSON.parse(file_content)
+    end
+
+    describe '#edit_priority' do
+        it 'changes the priority of the "write stories" task to high' do
+            expect {edit_priority(id, "high") }.not_to raise_error
+            task = file_content.find {|task| tasks['id'] == id}
+            expect(task).not_to be_nil
+            expect(task['priority']).to eq('high')
+        end
+    end
+
+    after(:all) do
+        if id && File.exist?(file_path)
+            udpated_tasks = parsed_json.reject {|task| task['id'] == id }
+            File.write(file_path, JSON.pretty_generate(updated_tasks))
+        end
+    end
+
+end
 
