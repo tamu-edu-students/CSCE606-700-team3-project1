@@ -26,6 +26,7 @@ class CLI
             case choice
 
                 when '1'
+
                     output.print "Filter status (all/incomplete/completed) [all]: "
                     status = input.gets.strip
                     status = 'all' if status.empty?
@@ -37,6 +38,29 @@ class CLI
                     args = ['list', status]
                     args << sort_by if sort_by
                     @app.run(args, output: output)
+
+                when '2'
+                    
+                    output.print "Title: "
+                    title = input.gets.strip
+                    output.print "Priority (high/medium/low): "
+                    priority = input.gets.strip
+                    output.print "Due Date (M/D/YYYY or YYYY-MM-DD): "
+                    date_due = input.gets.strip
+
+                    @app.run(['add', title, priority, date_due], output: output)
+
+                when '3'
+
+                when '4'
+
+                when '5'
+
+                when '6'
+
+                when '7'
+
+                when '8'
 
                 when '9', 'exit', 'quit'
                     output.puts "Goodbye!"
