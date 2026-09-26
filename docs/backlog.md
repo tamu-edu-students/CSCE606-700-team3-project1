@@ -13,6 +13,22 @@ This document tracks implementation, breakdown of tasks, and current progress.
 - [x] Break down *spec.rb into more specialized testing files
 - [ ] Determine whether need to write more tests
 
+### CLI
+
+#### Task Breakdown
+- [x] Tests Written
+- [ ] Welcome Message - Brief Description
+- [ ] Menu
+  - [ ] View task list
+    - [ ] Sort task list
+  - [ ] Edit task list
+    - [ ] Edit priority
+    - [ ] Add/Remove tags
+    - [ ] Remove all tags
+  - [ ] Add task
+  - [ ] Mark task Complete
+  - [ ] Delete Task
+
 ### Documentation
 
 #### Task Breakdown
@@ -27,21 +43,6 @@ This document tracks implementation, breakdown of tasks, and current progress.
 
 ## 🟡 To Do
 ---
-
-### CLI
-
-#### Task Breakdown
-- [ ] Welcome Message - Brief Description
-- [ ] Menu
-  - [ ] View task list
-    - [ ] Sort task list
-  - [ ] Edit task list
-    - [ ] Edit priority
-    - [ ] Add/Remove tags
-    - [ ] Remove all tags
-  - [ ] Add task
-  - [ ] Mark task Complete
-  - [ ] Delete Task
 
 ### Review for Final Submission
 
