@@ -90,10 +90,26 @@ class CLI
                     output.puts "Goodbye!"
                     break
 
-            end
+                else
+                    output.puts "Invalid choice. Please enter a number between 1 and 9."
+                end
 
+            rescue Interrupt
+                output.puts "\nExiting..."
+                break
+            rescue StandardError => e
+                output.puts "Error: #{e.message}"
+            
         end
 
     end
 
+end
+
+if $PROGRAM_NAME == __FILE__
+    if ARGV.empty?
+        CLI.new.start
+    else
+        exit(ProFresh.new.run(ARGV))
+    end
 end
