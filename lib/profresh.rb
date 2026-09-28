@@ -116,7 +116,9 @@ class ProFresh
                 if @task_list.stale?(task)
                     mark = ' [stale]'
                 end
-                output.puts("#{task['id']}: #{task['title']} | #{task['priority']} | #{task['date_due']} | #{task['status']}#{mark}")
+                output.puts("#{task['id']}: #{task['title']} | Priority: #{task['priority']} | Due: #{task['date_due']} | Status: #{task['status']}#{mark} | Tags: #{task['tags']&.join(', ') || ''} | Created: #{task['created']} | Updated: #{task['updated']} | Finished: #{task['finished']}")
+                # output.puts("#{task['id']}: #{task['title']} | Priority: #{task['priority']} | Due: #{task['date_due']} | Status: #{task['status']}#{mark} | Tags: #{task['tags'].join(', ')} | Created: #{task['created']} | Updated: #{task['updated']} | Finished: #{task['finished']}")
+                # output.puts("#{task['id']}: #{task['title']} | #{task['priority']} | #{task['date_due']} | #{task['status']}#{mark}")
             end
         when 'add'
             raise ArgumentError, 'usage: add TITLE PRIORITY DATE' unless args.length == 3
