@@ -48,7 +48,6 @@ Busy individuals who have too many tasks every day and want a convenient tool to
 
 ## Running the app
 
-Run `ruby lib/profresh.rb add "write code" high 9/26/2026`, then
-`ruby lib/profresh.rb list`. Tasks are saved in `data/task_list.json`.
+Run `ruby bin/cli.rb`. Tasks are saved in `data/task_list.json`.
 See [TaskList usage](docs/task_list.md) for editing, completion, deletion,
 filters, stale marks, and storage behavior. Run `rspec` to run the tests.
