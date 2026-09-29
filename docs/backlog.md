@@ -7,49 +7,6 @@ This document tracks implementation, breakdown of tasks, and current progress.
 ## 🟢 In Progress
 ---
 
-### Testing Suite
-
-#### Task Breakdown
-- [x] Break down *spec.rb into more specialized testing files
-- [ ] Determine whether need to write more tests
-
-### CLI
-
-#### Task Breakdown
-- [x] Tests Written
-- [ ] Welcome Message - Brief Description
-- [ ] Menu
-  - [ ] View task list
-    - [ ] Sort task list
-  - [ ] Edit task list
-    - [ ] Edit priority
-    - [ ] Add/Remove tags
-    - [ ] Remove all tags
-  - [ ] Add task
-  - [ ] Mark task Complete
-  - [ ] Delete Task
-
-### Documentation
-
-#### Task Breakdown
-- [x] User Stories
-- [x] README
-- [ ] Pairing Log
-- [ ] Backlog
-- [ ] Design
-- [ ] Planning
-- [ ] Retrospective
-
-
-## 🟡 To Do
----
-
-### Review for Final Submission
-
-#### Task Breakdown
-- [ ] Review all project deliverables
-- [ ] Project runs successfully
-
 ### Presentation
 
 #### Task Breakdown
@@ -61,16 +18,59 @@ This document tracks implementation, breakdown of tasks, and current progress.
   - [ ] Present Challenges
   - [ ] Any future plans
 
-### Demonstration
- 
+### Documentation
+
 #### Task Breakdown
-- [ ] Short video
-  - [ ] Demonstrate 4 problem-specific features
-  - [ ] Explain how they address the project's objectives
+- [x] User Stories
+- [x] README
+- [ ] Pairing Log
+- [ ] Backlog
+- [x] Design
+- [x] Planning
+- [x] Retrospective
+
+
+## 🟡 To Do
+---
+
+### Review for Final Submission
+
+#### Task Breakdown
+- [ ] Review all project deliverables
+- [ ] Project runs successfully
 
 
 ## 🔵 Done
 ---
+
+### Testing Suite
+
+#### Task Breakdown
+- [x] Break down *spec.rb into more specialized testing files
+- [x] Determine whether need to write more tests
+
+### CLI
+
+#### Task Breakdown
+- [x] Tests Written
+- [x] Welcome Message - Brief Description
+- [x] Menu
+  - [x] View task list
+    - [x] Sort task list
+  - [x] Edit task list
+    - [x] Edit priority
+    - [x] Add/Remove tags
+    - [x] Remove all tags
+  - [x] Add task
+  - [x] Mark task Complete
+  - [x] Delete Task
+
+### Demonstration
+ 
+#### Task Breakdown
+- [x] Short video
+  - [x] Demonstrate 4 problem-specific features
+  - [x] Explain how they address the project's objectives
 
 ### User Stories 1 & 3
 
