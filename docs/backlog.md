@@ -7,41 +7,46 @@ This document tracks implementation, breakdown of tasks, and current progress.
 ## 🟢 In Progress
 ---
 
-### Presentation
+NONE - Project Completed
+
+
+## 🟡 To Do
+---
+
+NONE - Project Completed
+
+
+## 🔵 Done
+---
+
+
+### Review for Final Submission
 
 #### Task Breakdown
-- [ ] 10-minute video
-  - [ ] Present the application
-  - [ ] Present the system design
-  - [ ] Present the UI
-  - [ ] Describe any AI tools used
-  - [ ] Present Challenges
-  - [ ] Any future plans
+- [x] Review all project deliverables
+- [x] Project runs successfully
 
 ### Documentation
 
 #### Task Breakdown
 - [x] User Stories
 - [x] README
-- [ ] Pairing Log
-- [ ] Backlog
+- [x] Pairing Log
+- [x] Backlog
 - [x] Design
 - [x] Planning
 - [x] Retrospective
 
-
-## 🟡 To Do
----
-
-### Review for Final Submission
+### Presentation
 
 #### Task Breakdown
-- [ ] Review all project deliverables
-- [ ] Project runs successfully
-
-
-## 🔵 Done
----
+- [x] 10-minute video
+  - [x] Present the application
+  - [x] Present the system design
+  - [x] Present the UI
+  - [x] Describe any AI tools used
+  - [x] Present Challenges
+  - [x] Any future plans
 
 ### Testing Suite
 

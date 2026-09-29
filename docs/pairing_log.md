@@ -61,50 +61,47 @@ Notes:
 
 ---
 
-## Session 5 - TBD
+## Session 5 - 2026-09-26
 
-Driver:  
-Navigator:
+Driver:     Adam Harrison  
+Navigator:  Yuhang Zhou
 
 Work Completed:
-
+- CLI Testing
+- CLI implementation
 
 Notes:
+- Continue testing and making changes.
 
 ---
 
-## Session 6 - TBD
+## Session 6 - 2026-09-28
 
-Driver:  
-Navigator:
+Driver:     Adam Harrison  
+Navigator:  Yuhang Zhou
 
 Work Completed:
-
-
-Notes:
+- Demonstration Video
+- Youtube Upload
 
 ---
 
-## Session 7 - TBD
+## Session 7 - 2026-09-28
 
-Driver:  
-Navigator:
+Driver:     Yuhang Zhou  
+Navigator:  Adam Harrison
 
 Work Completed:
-
-
-Notes:
+- Presentation Video
+- Upload
 
 ---
 
-## Session 8 - TBD
+## Session 8 - 2026-09-28
 
-Driver:  
-Navigator:
+Driver:     Adam Harrison
+Navigator:  Yuhang Zhou
 
 Work Completed:
-
-
-Notes:
-
----
+- Documentation Updated and Finalized
+- Retrospective Completed
